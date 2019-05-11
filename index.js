@@ -4,7 +4,8 @@ var through = require('through2');
 
 var plugin = function(name, opt){
   var opts = defaults(opt || {}, {
-    optimizeMemory: false
+    optimizeMemory: false,
+    useRelative: false
   });
 
   if (!plugin.caches[name]) {
@@ -30,7 +31,8 @@ var plugin = function(name, opt){
       }
     }
 
-    var cacheFile = plugin.caches[name][file.path];
+    var mapKey = opts.useRelative ? file.relative : file.path;
+    var cacheFile = plugin.caches[name][mapKey];
 
     // hit - ignore it
     if (typeof cacheFile !== 'undefined' && cacheFile === contents) {
@@ -39,7 +41,7 @@ var plugin = function(name, opt){
     }
 
     // miss - add it and pass it through
-    plugin.caches[name][file.path] = contents;
+    plugin.caches[name][mapKey] = contents;
     this.push(file);
     callback();
   });
